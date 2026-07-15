@@ -1,6 +1,6 @@
-# 网页转 Markdown 浏览器扩展（Web-to-MD）
+# Web-to-MD · 网页一键转 Markdown 浏览器扩展
 
-> 一键把网页正文导出为 Markdown，并连同页面图片打包成**单个 `.zip`**（内部 `xxx.md` + `assets/`），丢进 Obsidian / Typora / Logseq 即可直接使用。形态对标飞书文档的「导出为 Markdown」。
+> 点一下扩展图标，把当前网页正文导出成 Markdown，并连同图片打包成**单个 `.zip`**（`xxx.md` + `assets/`）。形态对标飞书文档的「导出为 Markdown」，丢进 Obsidian / Typora / Logseq 直接能用。
 
 [![Manifest V3](https://img.shields.io/badge/manifest-v3-blue)](https://developer.chrome.com/docs/extensions/mv3)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](./LICENSE)
@@ -10,36 +10,76 @@
 
 ---
 
-## 📌 简介
+## 🎬 演示
 
-你在看一篇写得很好的技术文档 / 博客 / Wiki，想把它存成本地 Markdown 归档，但手动复制粘贴会丢掉代码高亮、表格、图片链接，存下来的图还散落在外链图床上随时可能挂。
+> 一张动图胜过千言。把下面这张图换成你的实际操作录屏（建议 5–10 秒）：
+> 打开文档页 → 点扩展图标 → 点「导出为 Markdown」→ 下载出 `xxx.zip` → 解压看到 `xxx.md` + `assets/`。
+>
+> 录制好后放到 `docs/demo.gif`，并把下面这行 `<!-- -->` 注释去掉即可。
 
-这个扩展做的事情很简单：
-
-1. 打开任意网页，点一下扩展图标；
-2. 自动抽取正文（去掉导航 / 广告 / 页脚），转成干净的 Markdown；
-3. 把页面里用到的图片**一并抓取**，和 `.md` 一起打成一个 zip 下载。
-
-解压后就是一个自包含的资料包：`xxx.md` 里的图片全是相对路径 `./assets/...`，离线也能看。
-
-**设计取舍**：核心转换完全本地、免费、离线、隐私友好，**默认不调用任何大模型**。大模型只适合作为可选的"智能整理"增强通道，而非转换的必需环节——这是有意为之。
+<!-- ![demo](docs/demo.gif) -->
 
 ---
 
-## ✨ 特性
+## ✨ 它能帮你解决什么
 
-- **正文清洗**：基于 Mozilla Readability，自动剔除导航栏、侧边栏、广告、页脚等噪音，只留正文。
-- **高质量转换**：Turndown + GFM 插件，正确转换标题、列表、代码块（带语言标识）、**表格**、删除线、任务列表。
-- **图片随包下载**：图片以相对路径 `./assets/<hash>.<ext>` 写入 md，后台跨域抓取字节后打进 zip。
-- **零模型依赖**：核心流程纯本地规则映射，无 API Key、无费用、无隐私泄露、可离线。
-- **容错与去重**：图片抓取失败自动回退为原始绝对地址（至少在线可看）；按 URL 去重，避免重复下载。
-- **跨内核通用**：Manifest V3，Chrome / Edge 通用，无需改动。
+- **再也不用手动复制粘贴**：自动剔除导航栏、广告、页脚等噪音，只留正文，转成干净的 Markdown。
+- **图片不丢、不外链**：页面用到的图片全部抓取进 `assets/`，md 里改成相对路径 `./assets/...`，离线也能看，不依赖随时会挂的图床。
+- **表格 / 代码块 / 列表都正确**：标题、列表、代码块（带语言标识）、GFM 表格、删除线、任务列表，结构不塌。
+- **纯本地、免费、隐私友好**：核心转换不调用任何大模型，无 API Key、无费用、可离线，页面内容不出本机。
+- **Chrome / Edge 通用**：Manifest V3，装一次两边都能用。
 
 ---
 
-## 🏗️ 架构
+## 📦 安装（开发者模式加载）
 
-整体是标准的 MV3 三段式：Popup（操作面板）→ Content Script（页面内提取转换）→ Background Service Worker（抓图 + 打包 + 下载）。
+> 扩展未上架商店，需以「解压模式」加载。源码即成品，无需构建步骤。
+
+**Chrome**
+1. 打开 `chrome://extensions`
+2. 右上角开启「开发者模式」
+3. 点击「加载已解压的扩展程序」，选择本仓库目录（`web-to-md/`）
+4. 工具栏出现扩展图标，点击即弹出操作面板
+
+**Edge**
+1. 打开 `edge://extensions`
+2. 左侧开启「开发人员模式」
+3. 点击「加载解压缩的扩展」，选择本仓库目录
+4. 同样点击工具栏图标使用
+
+> 修改代码后，回到扩展管理页点击「刷新 / 重新加载」即可生效。
+
+---
+
+## 🚀 使用
+
+1. 打开任意一个文档 / 文章页面（语雀、飞书文档、Notion、Confluence、GitHub Wiki、各类官方文档站等）。
+2. 点击扩展图标 →「导出为 Markdown」。
+3. 等待进度（提取正文 → 下载图片），完成后在默认下载目录得到 `<标题>.zip`。
+4. 解压后：`xxx.md` 通过相对路径引用 `assets/` 下的图片，可直接导入笔记软件。
+
+---
+
+## 🔐 权限与隐私
+
+| 权限 | 用途 |
+|---|---|
+| `activeTab` / `tabs` | 获取当前标签页以触发提取 |
+| `scripting` | 在需要时主动注入内容脚本 |
+| `downloads` | 保存打包好的 zip |
+| `host_permissions: <all_urls>` | **关键**：让后台能跨域读取任意图床的图片字节打进 zip。若无此权限，跨域图片无法下载进包 |
+
+- **内容不出本机**：提取与转换全在本地完成，只有「下载图片字节」这一步会由后台向图床发请求（这是打包图片所必需，不可避免）。
+- **不收集任何数据**：无遥测、无上传、无第三方接口。
+- 若你介意 `<all_urls>` 这一较宽权限，可退化为「文件夹下载」方案（用 `chrome.downloads.download` 直接落盘，无需 host 权限，但产出是一堆文件而非单个 zip）。需要的话可在选项页加开关切换。
+
+---
+
+## 🏗️ 架构与工作原理
+
+> 这一段属于「想二次开发 / 评估项目」的人会看的。只想用的话，上面已经够了。
+
+整体是标准 MV3 三段式：**Popup（操作面板）→ Content Script（页面内提取转换）→ Background Service Worker（抓图 + 打包 + 下载）**。
 
 ```
 ┌─────────────┐   点击导出   ┌──────────────────┐   注入 / 通信   ┌──────────────────────────┐
@@ -61,63 +101,17 @@
 | 依赖 | `libs/` | 本地化的 turndown / turndown-plugin-gfm / readability / jszip（MV3 禁止远程代码，必须随包分发） |
 
 **数据流转**
-
 1. Popup 取得当前标签页 id，向 Background 发 `{type:'EXPORT', tabId}`。
 2. Background 校验 URL 为 http/https，向 Content Script 发 `{type:'EXTRACT'}`（若 content script 未就绪，先用 `chrome.scripting` 主动注入再重试）。
 3. Content Script 返回 `{title, markdown, images:[{url,key,extGuess}]}`。
 4. Background 逐张 `fetch` 图片 → 追加进 `assets/`，图片扩展名以真实 Content-Type 校正 → 生成 `xxx.md` + `assets/` 的 zip → 触发下载。
 
----
-
-## 📦 安装（开发者模式加载）
-
-> 扩展未上架商店，需以「解压模式」加载。源码即成品，无需构建步骤。
-
-### Chrome
-1. 打开 `chrome://extensions`
-2. 右上角开启「开发者模式」
-3. 点击「加载已解压的扩展程序」，选择本仓库目录（`web-to-md/`）
-4. 工具栏出现扩展图标，点击即弹出操作面板
-
-### Edge
-1. 打开 `edge://extensions`
-2. 左侧开启「开发人员模式」
-3. 点击「加载解压缩的扩展」，选择本仓库目录
-4. 同样点击工具栏图标使用
-
-> 修改代码后，回到扩展管理页点击「刷新 / 重新加载」即可生效。
-
----
-
-## 🚀 使用
-
-1. 打开任意一个文档 / 文章页面（语雀、飞书文档、Notion、Confluence、GitHub Wiki、各类官方文档站等）。
-2. 点击扩展图标 →「导出为 Markdown」。
-3. 等待进度（提取正文 → 下载图片），完成后在默认下载目录得到 `<标题>.zip`。
-4. 解压后：`xxx.md` 通过相对路径引用 `assets/` 下的图片，可直接导入笔记软件。
-
----
-
-## 🔐 权限说明
-
-| 权限 | 用途 |
-|---|---|
-| `activeTab` / `tabs` | 获取当前标签页以触发提取 |
-| `scripting` | 在需要时主动注入内容脚本 |
-| `downloads` | 保存打包好的 zip |
-| `host_permissions: <all_urls>` | **关键**：让后台能跨域读取任意图床的图片字节打进 zip。若无此权限，跨域图片无法下载进包 |
-
-> 若你介意 `<all_urls>` 这一较宽权限，可退化为「文件夹下载」方案（用 `chrome.downloads.download` 直接落盘，无需 host 权限，但产出是一堆文件而非单个 zip）。需要的话可在选项页加开关切换。
-
----
-
-## ⚙️ 工作原理（要点）
-
+**转换要点**
 - **正文提取**：克隆 `document` 交给 Readability，得到干净的正文 HTML 与标题。
 - **Markdown 转换**：把正文塞进离屏容器，用 Turndown（+`turndownPluginGfm.gfm`）转成 Markdown；顶部补一行 `# 标题` 和来源链接。
 - **图片处理**：遍历容器内 `<img>`，跳过 `data:`/`blob:`（已内联），其余规范化为绝对地址，改写为 `./assets/<hash>.<ext>`，并把 `(url, key, extGuess)` 交给后台。
-- **跨域抓图**：后台持 `<all_urls>` host 权限，`fetch` 不受页面 CORS 限制，可读到图片字节；按真实 `Content-Type` 校正扩展名（如服务端返回 `image/webp` 而 URL 猜的是 `jpg`），并同步改写 md 中的链接；失败则回退为原始绝对地址。
-- **打包下载**：JSZip 组装 `xxx.md` + `assets/*`，以 `data:application/zip;base64,...` 交给 `chrome.downloads.download` 落地单个 zip。
+- **跨域抓图**：后台持 `<all_urls>` host 权限，`fetch` 不受页面 CORS 限制，可读到图片字节；按真实 `Content-Type` 校正扩展名，并同步改写 md 中的链接；失败则回退为原始绝对地址（至少在线可看）。
+- **打包下载**：JSZip 组装 `xxx.md` + `assets/*`，交给 `chrome.downloads.download` 落地单个 zip。
 
 ---
 

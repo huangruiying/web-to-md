@@ -84,7 +84,12 @@ async function exportTab(tabId) {
   }
 
   let markdown = res.markdown;
-  const base = res.title || res.hostname || 'page';
+  // 清洗标题中的非法文件名字符（跨平台：Windows / macOS / Linux）
+  const rawTitle = (res.title || res.hostname || 'page').trim();
+  let base = rawTitle.replace(/[\\/:*?"<>|]/g, '').replace(/[\x00-\x1f]/g, '') || 'page';
+  if (!base || base.length > 200) {
+    base = res.hostname || 'page';
+  }
   const zip = new JSZip();
   const fetched = new Set();
 
